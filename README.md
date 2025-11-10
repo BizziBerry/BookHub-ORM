@@ -234,7 +234,7 @@ Store.objects.filter(books__published_date__year__gte=2010)
 
 # 4. ⚡ ОПТИМИЗАЦИЯ ЗАПРОСОВ
 
-- 1. **Метод ```select_related()``` - для ForeignKey**
+1. **Метод ```select_related()``` - для ForeignKey**
 - **Проблема N+1 без оптимизации:**
 ```
 python
@@ -254,7 +254,7 @@ for book in books:
 - **Результат:** Всего 1 SQL-запрос с ```JOIN```
 - **Применение:** Используется для связей One-to-Many и One-to-One
 
-- 2. **Метод ```prefetch_related()``` - для ManyToMany**
+2. **Метод ```prefetch_related()``` - для ManyToMany**
 - **Проблема N+1 без оптимизации:**
 ```
 python
@@ -274,7 +274,7 @@ for store in stores:
 - **Результат:** 2 SQL-запроса (1 для магазинов + 1 для всех связей)
 - **Применение:** Используется для связей Many-to-Many и reverse ForeignKey
 
-- 3. **Комбинированная оптимизация в проекте:**
+3. **Комбинированная оптимизация в проекте:**
 ```
 python
 # В views.py - полная оптимизация всех связей
