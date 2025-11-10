@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Библиотека - Оптимизированные запросы</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; }
+        .book { margin: 10px 0; padding: 10px; background: #f9f9f9; }
+        .store { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        .rating { color: #e67e22; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Библиотека книг</h1>
+
+    <!-- Книги с издательствами (select_related) -->
+    <div class="section">
+        <h2>Книги с издательствами (select_related)</h2>
+        {% for book in books_with_publishers %}
+        <div class="book">
+            <strong>{{ book.title }}</strong> - {{ book.author }}
+            {% if book.publisher %}
+                | Издательство: {{ book.publisher.name }} ({{ book.publisher.country }})
+            {% else %}
+                | Издательство: Не указано
+            {% endif %}
+            | Год: {{ book.published_date.year }}
+            | Рейтинг: <span class="rating">{{ book.average_rating|floatformat:1 }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Магазины с книгами (prefetch_related) -->
+    <div class="section">
+        <h2>Магазины с книгами (prefetch_related)</h2>
+        {% for store in stores_with_books %}
+        <div class="store">
+            <strong>{{ store.name }}</strong> - {{ store.city }}
+            <br>Книги в продаже:
+            {% for book in store.books.all %}
+                {{ book.title }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                нет книг
+            {% endfor %}
+            | Всего: {{ store.books.count }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Комплексные данные -->
+    <div class="section">
+        <h2>Книги со всеми связями</h2>
+        {% for book in books_with_all_relations %}
+        <div class="book">
+            <strong>{{ book.title }}</strong> - {{ book.author }}
+            {% if book.publisher %}
+                | Издатель: {{ book.publisher.name }}
+            {% endif %}
+            <br>Магазины:
+            {% for store in book.stores.all %}
+                {{ store.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                нет в продаже
+            {% endfor %}
+            <br>Отзывы ({{ book.reviews.count }}):
+            {% for review in book.reviews.all %}
+                {{ review.rating }}/5{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                нет отзывов
+            {% endfor %}
+            | Средний рейтинг: <span class="rating">{{ book.average_rating|floatformat:1 }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Результаты сложных запросов -->
+    <div class="section">
+        <h2>Результаты сложных запросов</h2>
+        
+        <h3>Книги российских издательств:</h3>
+        {% for book in russian_books %}
+        <div class="book">{{ book.title }} - {{ book.author }}</div>
+        {% endfor %}
+
+        <h3>Книги в московских магазинах:</h3>
+        {% for book in moscow_books %}
+        <div class="book">{{ book.title }} - {{ book.author }}</div>
+        {% endfor %}
+
+        <h3>Книги с высокой оценкой (>4.0):</h3>
+        {% for book in high_rated_books %}
+        <div class="book">{{ book.title }} - {{ book.author }} ({{ book.avg_rating|floatformat:1 }})</div>
+        {% endfor %}
+    </div>
+    <!-- Дополнительные сложные запросы -->
+    <div class="section">
+        <h2>Дополнительные сложные запросы</h2>
+        
+        <h3>4. Количество книг в каждом магазине:</h3>
+        {% for store in stores_book_counts %}
+        <div class="store">{{ store.name }} ({{ store.city }}): {{ store.books_count }} книг</div>
+        {% endfor %}
+
+        <h3>5. Магазины с книгами после 2010 года (отсортированы по количеству книг):</h3>
+        {% for store in stores_with_recent_books %}
+        <div class="store">{{ store.name }} ({{ store.city }}): {{ store.books_count }} книг</div>
+        {% empty %}
+        <div class="store">Нет магазинов с книгами после 2010 года</div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
